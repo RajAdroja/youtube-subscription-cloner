@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Subscriptions Viewer",
+  "version": "1.0.0",
+  "description": "View your YouTube subscriptions in a clean, simple interface",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "YouTube Subscriptions"
+  },
+  "permissions": [
+    "identity",
+    "storage"
+  ],
+  "oauth2": {
+    "client_id": "VITE_GOOGLE_OAUTH_CLIENT_ID",
+    "scopes": [
+      "https://www.googleapis.com/auth/youtube.readonly"
+    ]
+  },
+  "background": {
+    "service_worker": "src/background/index.ts"
+  }
+}
