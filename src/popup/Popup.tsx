@@ -8,6 +8,11 @@ export const Popup: React.FC = () => {
     loading,
     error,
     fetchSubscriptions,
+    remainingUnits,
+    subscribe,
+    unsubscribe,
+    unsubscribedIds,
+    exportSubscriptions
   } = useSubscriptions();
 
   return (
@@ -18,6 +23,9 @@ export const Popup: React.FC = () => {
       </div>
 
       <div style={{ padding: '10px', maxHeight: '400px', overflowY: 'auto' }}>
+        <div style={{ marginBottom: '8px', fontSize: '12px', color: '#666' }}>
+          Remaining daily units: <strong>{remainingUnits}</strong>
+        </div>
         {loading && (
           <div style={{ textAlign: 'center', padding: '20px' }}>
             <div style={{ display: 'inline-block', width: '20px', height: '20px', border: '2px solid #ccc', borderTop: '2px solid #333', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
@@ -35,11 +43,19 @@ export const Popup: React.FC = () => {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
               <h2 style={{ fontSize: '14px', margin: 0 }}>
-                Subscriptions ({subscriptions.length}/5)
+                Subscriptions ({subscriptions.length})
               </h2>
-              <button onClick={() => fetchSubscriptions()}>
-                Refresh
-              </button>
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button onClick={() => exportSubscriptions('csv')} style={{ fontSize: '11px', padding: '4px 6px' }}>
+                  Export CSV
+                </button>
+                <button onClick={() => exportSubscriptions('json')} style={{ fontSize: '11px', padding: '4px 6px' }}>
+                  Export JSON
+                </button>
+                <button onClick={() => fetchSubscriptions()}>
+                  Refresh
+                </button>
+              </div>
             </div>
 
             {subscriptions.length === 0 ? (
@@ -50,7 +66,13 @@ export const Popup: React.FC = () => {
                 </p>
               </div>
             ) : (
-              <SubscriptionList subscriptions={subscriptions} />
+              <SubscriptionList 
+                subscriptions={subscriptions} 
+                onSubscribe={subscribe} 
+                onUnsubscribe={unsubscribe}
+                canAct={remainingUnits >= 50}
+                unsubscribedIds={unsubscribedIds}
+              />
             )}
           </div>
         )}

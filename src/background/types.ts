@@ -1,5 +1,8 @@
 export type BackgroundMessage =
   | { action: "getSubscriptions"; maxResults?: number }
+  | { action: "subscribe"; channelId: string }
+  | { action: "unsubscribe"; subscriptionId: string }
+  | { action: "quotaRemaining" }
 
 export interface BackgroundResponse<T = any> {
   success: boolean;

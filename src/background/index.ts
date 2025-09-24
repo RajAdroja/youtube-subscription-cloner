@@ -1,4 +1,7 @@
-import { fetchSubscriptions } from "./youtube/fetchSubscriptions";
+import { fetchAllSubscriptions } from "./youtube/fetchSubscriptions";
+import { subscribeToChannel } from "./youtube/subscribe";
+import { unsubscribeBySubscriptionId } from "./youtube/unsubscribe";
+import { remainingUnits } from "./quota";
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Background worker running!");
@@ -13,10 +16,23 @@ chrome.runtime.onMessage.addListener(
         switch (msg.action) {
           case "getSubscriptions": {
             console.log("Fetching subscriptions...");
-            
-            const subs = await fetchSubscriptions(msg.maxResults || 5);
+            const subs = await fetchAllSubscriptions();
             console.log("Subscriptions fetched:", subs);
             sendResponse({ success: true, data: subs });
+            break;
+          }
+          case "subscribe": {
+            await subscribeToChannel(msg.channelId);
+            sendResponse({ success: true });
+            break;
+          }
+          case "unsubscribe": {
+            await unsubscribeBySubscriptionId(msg.subscriptionId);
+            sendResponse({ success: true });
+            break;
+          }
+          case "quotaRemaining": {
+            sendResponse({ success: true, data: await remainingUnits() });
             break;
           }
 

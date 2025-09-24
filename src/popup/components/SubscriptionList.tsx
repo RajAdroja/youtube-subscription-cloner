@@ -3,9 +3,13 @@ import { YouTubeSubscriptionItem } from "../../background/types";
 
 interface Props {
   subscriptions: YouTubeSubscriptionItem[];
+  onSubscribe?: (channelId: string) => void;
+  onUnsubscribe?: (subscriptionId: string) => void;
+  canAct?: boolean;
+  unsubscribedIds?: Set<string>;
 }
 
-export const SubscriptionList: React.FC<Props> = ({ subscriptions }) => {
+export const SubscriptionList: React.FC<Props> = ({ subscriptions, onSubscribe, onUnsubscribe, canAct = true, unsubscribedIds = new Set() }) => {
   return (
     <div>
       {subscriptions.map((sub) => (
@@ -23,15 +27,35 @@ export const SubscriptionList: React.FC<Props> = ({ subscriptions }) => {
             <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {sub.snippet.title}
             </div>
-            <div style={{ fontSize: '12px', color: '#666', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {sub.snippet.resourceId.channelId}
-            </div>
             {sub.snippet.thumbnails?.default && (
               <img
                 src={sub.snippet.thumbnails.default.url}
                 alt={sub.snippet.title}
                 style={{ width: '32px', height: '32px', borderRadius: '50%', marginTop: '5px' }}
               />
+            )}
+          </div>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {unsubscribedIds.has(sub.id) ? (
+              // Show Subscribe button if unsubscribed
+              onSubscribe && (
+                <button 
+                  disabled={!canAct} 
+                  onClick={() => onSubscribe(sub.snippet.resourceId.channelId)}
+                >
+                  Subscribe
+                </button>
+              )
+            ) : (
+              // Show Unsubscribe button if subscribed
+              onUnsubscribe && (
+                <button 
+                  disabled={!canAct} 
+                  onClick={() => onUnsubscribe(sub.id)}
+                >
+                  Unsubscribe
+                </button>
+              )
             )}
           </div>
         </div>

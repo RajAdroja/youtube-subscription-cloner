@@ -14,7 +14,7 @@
   "oauth2": {
     "client_id": "VITE_GOOGLE_OAUTH_CLIENT_ID",
     "scopes": [
-      "https://www.googleapis.com/auth/youtube.readonly"
+      "https://www.googleapis.com/auth/youtube"
     ]
   },
   "background": {
