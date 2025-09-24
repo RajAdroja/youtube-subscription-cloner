@@ -7,9 +7,19 @@ interface Props {
   onUnsubscribe?: (subscriptionId: string) => void;
   canAct?: boolean;
   unsubscribedIds?: Set<string>;
+  selectedIds?: Set<string>;
+  onToggleSelection?: (subscriptionId: string) => void;
 }
 
-export const SubscriptionList: React.FC<Props> = ({ subscriptions, onSubscribe, onUnsubscribe, canAct = true, unsubscribedIds = new Set() }) => {
+export const SubscriptionList: React.FC<Props> = ({ 
+  subscriptions, 
+  onSubscribe, 
+  onUnsubscribe, 
+  canAct = true, 
+  unsubscribedIds = new Set(),
+  selectedIds = new Set(),
+  onToggleSelection
+}) => {
   return (
     <div>
       {subscriptions.map((sub) => (
@@ -23,6 +33,16 @@ export const SubscriptionList: React.FC<Props> = ({ subscriptions, onSubscribe, 
             alignItems: 'center'
           }}
         >
+          {onToggleSelection && !unsubscribedIds.has(sub.id) && (
+            <div style={{ marginRight: '8px' }}>
+              <input
+                type="checkbox"
+                checked={selectedIds.has(sub.id)}
+                onChange={() => onToggleSelection(sub.id)}
+                style={{ margin: 0, transform: 'scale(1.1)' }}
+              />
+            </div>
+          )}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {sub.snippet.title}

@@ -14,6 +14,7 @@ export function useSubscriptions() {
   const [error, setError] = useState<string | null>(null);
   const [remainingUnits, setRemainingUnits] = useState<number>(0);
   const [unsubscribedIds, setUnsubscribedIds] = useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const lastFetchRef = useRef<number>(0);
 
   const fetchSubscriptions = (maxResults?: number) => {
@@ -36,6 +37,8 @@ export function useSubscriptions() {
           setSubscriptions(res.data);
           // Clear unsubscribed state when refreshing
           setUnsubscribedIds(new Set());
+          // Clear selected state when refreshing
+          setSelectedIds(new Set());
           // cache
           const payload = { ts: Date.now(), data: res.data };
           chrome.storage.local.set({ [CACHE_KEY]: payload });
@@ -201,6 +204,85 @@ export function useSubscriptions() {
     }
   };
 
+  const toggleSelection = (subscriptionId: string) => {
+    setSelectedIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(subscriptionId)) {
+        newSet.delete(subscriptionId);
+      } else {
+        newSet.add(subscriptionId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    const allSubscribedIds = subscriptions
+      .filter(sub => !unsubscribedIds.has(sub.id))
+      .map(sub => sub.id);
+    
+    if (selectedIds.size === allSubscribedIds.length) {
+      // Deselect all
+      setSelectedIds(new Set());
+    } else {
+      // Select all subscribed channels
+      setSelectedIds(new Set(allSubscribedIds));
+    }
+  };
+
+  const unsubscribeSelected = () => {
+    if (selectedIds.size === 0) {
+      setError("No channels selected");
+      return;
+    }
+
+    const requiredUnits = selectedIds.size * 50;
+    if (remainingUnits < requiredUnits) {
+      setError(`Not enough quota. Need ${requiredUnits} units, have ${remainingUnits}`);
+      return;
+    }
+
+    setError(null);
+    
+    // Update UI immediately for all selected channels
+    setUnsubscribedIds(prev => {
+      const newSet = new Set(prev);
+      selectedIds.forEach(id => newSet.add(id));
+      return newSet;
+    });
+
+    // Clear selection
+    setSelectedIds(new Set());
+
+    // Process each unsubscribe
+    let completed = 0;
+    let errors = 0;
+    
+    selectedIds.forEach(subscriptionId => {
+      chrome.runtime.sendMessage(
+        { action: "unsubscribe", subscriptionId } as BackgroundMessage,
+        (res: BackgroundResponse<void>) => {
+          completed++;
+          if (!res?.success) {
+            errors++;
+            if (!res?.error?.includes("404") && !res?.error?.includes("subscriptionNotFound")) {
+              // Only show error for non-404 errors
+              setError(`Failed to unsubscribe from some channels: ${res?.error}`);
+            }
+          }
+          
+          // Refresh quota after all requests complete
+          if (completed === selectedIds.size) {
+            refreshRemainingUnits();
+            if (errors > 0 && errors < selectedIds.size) {
+              console.log(`${errors} channels failed to unsubscribe`);
+            }
+          }
+        }
+      );
+    });
+  };
+
   return {
     subscriptions,
     loading,
@@ -210,6 +292,10 @@ export function useSubscriptions() {
     subscribe,
     unsubscribe,
     unsubscribedIds,
-    exportSubscriptions
+    exportSubscriptions,
+    selectedIds,
+    toggleSelection,
+    toggleSelectAll,
+    unsubscribeSelected
   };
 }

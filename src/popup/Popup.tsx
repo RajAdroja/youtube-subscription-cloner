@@ -12,7 +12,11 @@ export const Popup: React.FC = () => {
     subscribe,
     unsubscribe,
     unsubscribedIds,
-    exportSubscriptions
+    exportSubscriptions,
+    selectedIds,
+    toggleSelection,
+    toggleSelectAll,
+    unsubscribeSelected
   } = useSubscriptions();
 
   return (
@@ -41,20 +45,55 @@ export const Popup: React.FC = () => {
 
         {!loading && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-              <h2 style={{ fontSize: '14px', margin: 0 }}>
-                Subscriptions ({subscriptions.length})
-              </h2>
-              <div style={{ display: 'flex', gap: '6px' }}>
-                <button onClick={() => exportSubscriptions('csv')} style={{ fontSize: '11px', padding: '4px 6px' }}>
-                  Export CSV
-                </button>
-                <button onClick={() => exportSubscriptions('json')} style={{ fontSize: '11px', padding: '4px 6px' }}>
-                  Export JSON
-                </button>
-                <button onClick={() => fetchSubscriptions()}>
-                  Refresh
-                </button>
+            <div style={{ marginBottom: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <h2 style={{ fontSize: '14px', margin: 0 }}>
+                  Subscriptions ({subscriptions.length})
+                </h2>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <button onClick={() => exportSubscriptions('csv')} style={{ fontSize: '11px', padding: '4px 6px' }}>
+                    Export CSV
+                  </button>
+                  <button onClick={() => exportSubscriptions('json')} style={{ fontSize: '11px', padding: '4px 6px' }}>
+                    Export JSON
+                  </button>
+                  <button onClick={() => fetchSubscriptions()}>
+                    Refresh
+                  </button>
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.size > 0 && selectedIds.size === subscriptions.filter(sub => !unsubscribedIds.has(sub.id)).length}
+                    onChange={toggleSelectAll}
+                    style={{ margin: 0 }}
+                  />
+                  Select All
+                </label>
+                
+                {selectedIds.size > 0 && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span style={{ fontSize: '12px', color: '#666' }}>
+                      {selectedIds.size} selected
+                    </span>
+                    <button 
+                      onClick={unsubscribeSelected}
+                      style={{ 
+                        fontSize: '11px', 
+                        padding: '4px 8px', 
+                        backgroundColor: '#dc3545', 
+                        color: 'white', 
+                        border: 'none',
+                        borderRadius: '3px'
+                      }}
+                    >
+                      Unsubscribe Selected ({selectedIds.size})
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -72,6 +111,8 @@ export const Popup: React.FC = () => {
                 onUnsubscribe={unsubscribe}
                 canAct={remainingUnits >= 50}
                 unsubscribedIds={unsubscribedIds}
+                selectedIds={selectedIds}
+                onToggleSelection={toggleSelection}
               />
             )}
           </div>
