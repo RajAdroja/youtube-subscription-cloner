@@ -1,6 +1,12 @@
-import React from "react";
-import { useSubscriptions } from "./hooks/useSubscriptions";
-import { SubscriptionList } from "./components/SubscriptionList";
+import React from 'react';
+import { useSubscriptions } from './hooks/useSubscriptions';
+import { SubscriptionList } from './components/SubscriptionList';
+import { BulkActions } from './components/subscription/BulkActions';
+import { LoadingSpinner } from './components/common/LoadingSpinner';
+import { ErrorMessage } from './components/common/ErrorMessage';
+import { Button } from './components/common/Button';
+import './styles/globals.css';
+import './styles/components.css';
 
 export const Popup: React.FC = () => {
   const {
@@ -19,88 +25,62 @@ export const Popup: React.FC = () => {
     unsubscribeSelected
   } = useSubscriptions();
 
+  const subscribedCount = subscriptions.filter(sub => !unsubscribedIds.has(sub.id)).length;
+
   return (
-    <div style={{ width: '400px', maxHeight: '500px' }}>
-      <div style={{ background: '#333', color: 'white', padding: '10px' }}>
-        <h1 style={{ fontSize: '16px', margin: '0 0 5px 0' }}>YouTube Subscriptions</h1>
-        <p style={{ fontSize: '12px', margin: 0, opacity: 0.8 }}>Your subscribed channels (5 channels)</p>
+    <div className="popup-container">
+      <div className="popup-header">
+        <h1>YouTube Subscriptions</h1>
+        <p>Your subscribed channels ({subscribedCount} channels)</p>
       </div>
 
-      <div style={{ padding: '10px', maxHeight: '400px', overflowY: 'auto' }}>
-        <div style={{ marginBottom: '8px', fontSize: '12px', color: '#666' }}>
+      <div className="popup-content">
+        <div className="quota-display">
           Remaining daily units: <strong>{remainingUnits}</strong>
         </div>
-        {loading && (
-          <div style={{ textAlign: 'center', padding: '20px' }}>
-            <div style={{ display: 'inline-block', width: '20px', height: '20px', border: '2px solid #ccc', borderTop: '2px solid #333', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-            <span style={{ marginLeft: '10px' }}>Loading...</span>
-          </div>
-        )}
 
-        {error && (
-          <div style={{ background: '#ffebee', border: '1px solid #f44336', color: '#c62828', padding: '10px', marginBottom: '10px' }}>
-            {error}
-          </div>
-        )}
+        {loading && <LoadingSpinner />}
+
+        {error && <ErrorMessage message={error} />}
 
         {!loading && (
           <div>
-            <div style={{ marginBottom: '10px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <h2 style={{ fontSize: '14px', margin: 0 }}>
-                  Subscriptions ({subscriptions.length})
-                </h2>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  <button onClick={() => exportSubscriptions('csv')} style={{ fontSize: '11px', padding: '4px 6px' }}>
+            <div className="subscriptions-header">
+              <div className="subscriptions-title">
+                <h2>Subscriptions ({subscriptions.length})</h2>
+                <div className="action-buttons">
+                  <Button 
+                    onClick={() => exportSubscriptions('csv')} 
+                    size="small"
+                    className="action-button"
+                  >
                     Export CSV
-                  </button>
-                  <button onClick={() => exportSubscriptions('json')} style={{ fontSize: '11px', padding: '4px 6px' }}>
+                  </Button>
+                  <Button 
+                    onClick={() => exportSubscriptions('json')} 
+                    size="small"
+                    className="action-button"
+                  >
                     Export JSON
-                  </button>
-                  <button onClick={() => fetchSubscriptions()}>
+                  </Button>
+                  <Button onClick={() => fetchSubscriptions()}>
                     Refresh
-                  </button>
+                  </Button>
                 </div>
               </div>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.size > 0 && selectedIds.size === subscriptions.filter(sub => !unsubscribedIds.has(sub.id)).length}
-                    onChange={toggleSelectAll}
-                    style={{ margin: 0 }}
-                  />
-                  Select All
-                </label>
-                
-                {selectedIds.size > 0 && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontSize: '12px', color: '#666' }}>
-                      {selectedIds.size} selected
-                    </span>
-                    <button 
-                      onClick={unsubscribeSelected}
-                      style={{ 
-                        fontSize: '11px', 
-                        padding: '4px 8px', 
-                        backgroundColor: '#dc3545', 
-                        color: 'white', 
-                        border: 'none',
-                        borderRadius: '3px'
-                      }}
-                    >
-                      Unsubscribe Selected ({selectedIds.size})
-                    </button>
-                  </div>
-                )}
-              </div>
+              <BulkActions
+                selectedCount={selectedIds.size}
+                totalSubscribed={subscribedCount}
+                onSelectAll={toggleSelectAll}
+                onUnsubscribeSelected={unsubscribeSelected}
+              />
             </div>
 
             {subscriptions.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
-                <p style={{ margin: '0 0 5px 0' }}>No subscriptions found</p>
-                <p style={{ fontSize: '12px', margin: 0 }}>
+              <div className="empty-state">
+                <p>No subscriptions found</p>
+                <p className="help-text">
                   Make sure you're signed into YouTube and have subscriptions
                 </p>
               </div>

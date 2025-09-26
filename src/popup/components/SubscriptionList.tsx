@@ -1,5 +1,6 @@
-import React from "react";
-import { YouTubeSubscriptionItem } from "../../background/types";
+import React from 'react';
+import { YouTubeSubscriptionItem } from '../../shared/types';
+import { SubscriptionItem } from './subscription/SubscriptionItem';
 
 interface Props {
   subscriptions: YouTubeSubscriptionItem[];
@@ -23,62 +24,16 @@ export const SubscriptionList: React.FC<Props> = ({
   return (
     <div>
       {subscriptions.map((sub) => (
-        <div
+        <SubscriptionItem
           key={sub.id}
-          style={{ 
-            border: '1px solid #ddd', 
-            padding: '10px', 
-            marginBottom: '5px',
-            display: 'flex',
-            alignItems: 'center'
-          }}
-        >
-          {onToggleSelection && !unsubscribedIds.has(sub.id) && (
-            <div style={{ marginRight: '8px' }}>
-              <input
-                type="checkbox"
-                checked={selectedIds.has(sub.id)}
-                onChange={() => onToggleSelection(sub.id)}
-                style={{ margin: 0, transform: 'scale(1.1)' }}
-              />
-            </div>
-          )}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 'bold', fontSize: '14px', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {sub.snippet.title}
-            </div>
-            {sub.snippet.thumbnails?.default && (
-              <img
-                src={sub.snippet.thumbnails.default.url}
-                alt={sub.snippet.title}
-                style={{ width: '32px', height: '32px', borderRadius: '50%', marginTop: '5px' }}
-              />
-            )}
-          </div>
-          <div style={{ display: 'flex', gap: '6px' }}>
-            {unsubscribedIds.has(sub.id) ? (
-              // Show Subscribe button if unsubscribed
-              onSubscribe && (
-                <button 
-                  disabled={!canAct} 
-                  onClick={() => onSubscribe(sub.snippet.resourceId.channelId)}
-                >
-                  Subscribe
-                </button>
-              )
-            ) : (
-              // Show Unsubscribe button if subscribed
-              onUnsubscribe && (
-                <button 
-                  disabled={!canAct} 
-                  onClick={() => onUnsubscribe(sub.id)}
-                >
-                  Unsubscribe
-                </button>
-              )
-            )}
-          </div>
-        </div>
+          subscription={sub}
+          isSelected={selectedIds.has(sub.id)}
+          isUnsubscribed={unsubscribedIds.has(sub.id)}
+          canAct={canAct}
+          onSubscribe={onSubscribe}
+          onUnsubscribe={onUnsubscribe}
+          onToggleSelection={onToggleSelection}
+        />
       ))}
     </div>
   );

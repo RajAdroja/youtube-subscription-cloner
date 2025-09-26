@@ -2,15 +2,24 @@ export type BackgroundMessage =
   | { action: "getSubscriptions"; maxResults?: number }
   | { action: "subscribe"; channelId: string }
   | { action: "unsubscribe"; subscriptionId: string }
-  | { action: "quotaRemaining" }
+  | { action: "quotaRemaining" };
 
-export interface BackgroundResponse<T = any> {
+export type BackgroundResponse<T = any> = {
   success: boolean;
   data?: T;
   error?: string;
-}
+};
 
-export interface YouTubeSubscriptionItem {
+export type YouTubeSubscriptionsResponse = {
+  items: YouTubeSubscriptionItem[];
+  nextPageToken?: string;
+  pageInfo: {
+    totalResults: number;
+    resultsPerPage: number;
+  };
+};
+
+export type YouTubeSubscriptionItem = {
   id: string;
   snippet: {
     title: string;
@@ -25,13 +34,14 @@ export interface YouTubeSubscriptionItem {
       high?: { url: string; width: number; height: number };
     };
   };
-}
+};
 
-export interface YouTubeSubscriptionsResponse {
-  items: YouTubeSubscriptionItem[];
-  nextPageToken?: string;
-  pageInfo: {
-    totalResults: number;
-    resultsPerPage: number;
-  };
-}
+export type QuotaState = {
+  used: number;
+  lastReset: number;
+};
+
+export const QuotaCosts = {
+  ACTION_COST: 50,
+  LIST_COST: 1
+} as const;

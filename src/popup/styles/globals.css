@@ -1,0 +1,43 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #333;
+    background-color: #fff;
+  }
+  
+  button {
+    cursor: pointer;
+    border: 1px solid #ccc;
+    background: #f0f0f0;
+    padding: 4px 8px;
+    font-size: 12px;
+    transition: background-color 0.2s;
+  }
+  
+  button:hover {
+    background: #e0e0e0;
+  }
+  
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Animation keyframes */
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }

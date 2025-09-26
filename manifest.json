@@ -12,7 +12,7 @@
     "storage"
   ],
   "oauth2": {
-    "client_id": "VITE_GOOGLE_OAUTH_CLIENT_ID",
+    "client_id": "44642640963-udpngeo44pe6b4i0m392lslbc0s88bhr.apps.googleusercontent.com",
     "scopes": [
       "https://www.googleapis.com/auth/youtube"
     ]

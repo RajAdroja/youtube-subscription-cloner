@@ -1,7 +1,6 @@
-import { fetchAllSubscriptions } from "./youtube/fetchSubscriptions";
-import { subscribeToChannel } from "./youtube/subscribe";
-import { unsubscribeBySubscriptionId } from "./youtube/unsubscribe";
-import { remainingUnits } from "./quota";
+import { YouTubeFetchService } from "./services/youtube-fetch.service";
+import { YouTubeSubscribeService } from "./services/youtube-subscribe.service";
+import { QuotaService } from "./services/quota.service";
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Background worker running!");
@@ -16,26 +15,25 @@ chrome.runtime.onMessage.addListener(
         switch (msg.action) {
           case "getSubscriptions": {
             console.log("Fetching subscriptions...");
-            const subs = await fetchAllSubscriptions();
+            const subs = await YouTubeFetchService.fetchAllSubscriptions();
             console.log("Subscriptions fetched:", subs);
             sendResponse({ success: true, data: subs });
             break;
           }
           case "subscribe": {
-            await subscribeToChannel(msg.channelId);
+            await YouTubeSubscribeService.subscribeToChannel(msg.channelId);
             sendResponse({ success: true });
             break;
           }
           case "unsubscribe": {
-            await unsubscribeBySubscriptionId(msg.subscriptionId);
+            await YouTubeSubscribeService.unsubscribeBySubscriptionId(msg.subscriptionId);
             sendResponse({ success: true });
             break;
           }
           case "quotaRemaining": {
-            sendResponse({ success: true, data: await remainingUnits() });
+            sendResponse({ success: true, data: await QuotaService.remainingUnits() });
             break;
           }
-
           default: {
             console.log("Unknown action:", msg.action);
             sendResponse({ success: false, error: "Unknown action" });
