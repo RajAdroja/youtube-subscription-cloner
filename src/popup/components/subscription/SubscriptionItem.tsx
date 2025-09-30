@@ -1,5 +1,6 @@
 import React from 'react';
-import { YouTubeSubscriptionItem } from '../../../shared/types/index';
+import { YouTubeSubscriptionItem } from '../../../shared/types';
+import './SubscriptionItem.css';
 
 interface SubscriptionItemProps {
   subscription: YouTubeSubscriptionItem;
